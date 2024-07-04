@@ -4,7 +4,7 @@ const app = express();
 app.use((req, res, next) => {
   res.setHeader(
     "Access-Control-Allow-Origin",
-    "https://stock-management-app-ftdt.onrender.com/"
+    "https://stock-management-app-ftdt.onrender.com/register"
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
