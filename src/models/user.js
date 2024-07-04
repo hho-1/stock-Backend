@@ -95,48 +95,47 @@ const UserSchema = new mongoose.Schema({
 
 const passwordEncrypt = require('../helpers/passwordEncrypt')
 
-UserSchema.pre(['save', 'updateOne'], function (next) {
+UserSchema.pre(["save", "updateOne"], function (next) {
+  // Get data from "this" when creating;
+  // if process is updateOne, data will receive in "this._update"
+  const data = this?._update || this;
 
-    // get data from "this" when create;
-    // if process is updateOne, data will receive in "this._update"
-    const data = this?._update || this
+  // Email validation
+  const isEmailValidated = data.email
+    ? /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(data.email)
+    : true;
 
-    // email@domain.com
-    const isEmailValidated = data.email
-        ? /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(data.email) // test from "data".
-        : true
+  if (isEmailValidated) {
+    if (data?.password) {
+      // Password validation: (min 1: lowerCase, upperCase, Numeric, @$!%*?& + min 8 chars)
+      const isPasswordValidated =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*+?&]).{8,}$/.test(
+          data.password
+        );
 
-    if (isEmailValidated) {
-
-        if (data?.password) {
-
-            // pass == (min 1: lowerCase, upperCase, Numeric, @$!%*?& + min 8 chars)
-            const isPasswordValidated = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*+?&]).{8,}$/.test(data.password)
-
-            if (isPasswordValidated) {
-
-                this.password = data.password // = passwordEncrypt(data.password)     Bu kismi deployment öncesi kaldirdim mecburen
-                this._update = data // updateOne will wait data from "this._update".
-
-            } else {
-
-                next(new Error('Password not validated.'))
-            }
-        }
-
-        next() // Allow to save.
-
+      if (isPasswordValidated) {
+        // Uncomment the encryption line before deployment
+        // this.password = passwordEncrypt(data.password);
+        this.password = data.password;
+        this._update = data; // updateOne will wait for data from "this._update".
+        next();
+      } else {
+        return next(new Error("Password not validated."));
+      }
     } else {
-
-        next(new Error('Email not validated.'))
+      // If no password is provided, proceed (assuming it's an update operation that doesn't modify the password)
+      next();
     }
-})
+  } else {
+    return next(new Error("Email not validated."));
+  }
+});
+
 /* ------------------------------------------------------- */
 // FOR REACT PROJECT:
-UserSchema.pre('init', function (data) {
-
-    data.id = data._id
-    data.createds = data.createdAt.toLocaleDateString('tr-tr')
-})
+UserSchema.pre("init", function (data) {
+  data.id = data._id;
+  data.createds = data.createdAt.toLocaleDateString("tr-tr");
+});
 /* ------------------------------------------------------- */
-module.exports = mongoose.model('User', UserSchema)
+module.exports = mongoose.model("User", UserSchema);
