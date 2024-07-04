@@ -115,7 +115,7 @@ UserSchema.pre(['save', 'updateOne'], function (next) {
 
             if (isPasswordValidated) {
 
-                this.password = data.password = passwordEncrypt(data.password)
+                this.password = data.password // = passwordEncrypt(data.password)     Bu kismi deployment öncesi kaldirdim mecburen
                 this._update = data // updateOne will wait data from "this._update".
 
             } else {

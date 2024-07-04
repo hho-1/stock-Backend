@@ -32,7 +32,7 @@ module.exports = {
 
             const user = await User.findOne({ $or: [{ username }, { email }] })
 
-            if (user && user.password == passwordEncrypt(password)) {
+            if (user && user.password == password) {         // passwodencrypt'i kaldirdim mecburen deploy öncesi
 
                 if (user.is_active) {
 
