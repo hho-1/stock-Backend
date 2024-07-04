@@ -62,7 +62,7 @@ app.use(express.json())
     app.all('*', cors({ origin: 'allmethods.com' }))
 */
 
- app.use(require('./src/middlewares/cors')()) // Run with defaults.
+ app.use(require('cors')()) // Run with defaults.
 /* app.use(require('cors')({
     origin: ["http://localhost:3000", "http://localhost:4173", "http://localhost:5173"]
 })) */
