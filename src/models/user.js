@@ -95,6 +95,20 @@ const UserSchema = new mongoose.Schema({
 
 const passwordEncrypt = require('../helpers/passwordEncrypt')
 
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
+
+const UserSchema = new Schema({
+  username: String,
+  first_name: String,
+  last_name: String,
+  email: String,
+  password: String,
+  is_staff: Boolean,
+  is_superadmin: Boolean,
+  createdAt: { type: Date, default: Date.now },
+});
+
 UserSchema.pre(["save", "updateOne"], function (next) {
   // Get data from "this" when creating;
   // if process is updateOne, data will receive in "this._update"
@@ -105,13 +119,22 @@ UserSchema.pre(["save", "updateOne"], function (next) {
     ? /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(data.email)
     : true;
 
+  console.log("Email validation:", isEmailValidated);
+
   if (isEmailValidated) {
     if (data?.password) {
-      // Password validation: (min 1: lowerCase, upperCase, Numeric, @$!%*?& + min 8 chars)
+      // Password validation: (min 1: lowerCase, upperCase, Numeric, @$!%*+?& + min 8 chars)
       const isPasswordValidated =
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*+?&]).{8,}$/.test(
           data.password
         );
+
+      console.log(
+        "Password validation:",
+        isPasswordValidated,
+        "Password:",
+        data.password
+      );
 
       if (isPasswordValidated) {
         // Uncomment the encryption line before deployment
